@@ -1,0 +1,12 @@
+{
+  "runs": [
+    {"algorithm": "qnsga2", "instance": "Mk01", "repeat": 0, "population_size": 10, "generations": 1},
+    {"algorithm": "nsga2", "instance": "Mk01", "repeat": 0, "population_size": 10, "generations": 1},
+    {"algorithm": "moead", "instance": "Mk01", "repeat": 0, "population_size": 10, "generations": 1},
+    {"algorithm": "mopso", "instance": "Mk01", "repeat": 0, "population_size": 10, "generations": 1},
+    {"algorithm": "ablation_A", "instance": "Mk01", "repeat": 0, "population_size": 10, "generations": 1},
+    {"algorithm": "ablation_B", "instance": "Mk01", "repeat": 0, "population_size": 10, "generations": 1},
+    {"algorithm": "ablation_C", "instance": "Mk01", "repeat": 0, "population_size": 10, "generations": 1},
+    {"algorithm": "ablation_full", "instance": "Mk01", "repeat": 0, "population_size": 10, "generations": 1}
+  ]
+}

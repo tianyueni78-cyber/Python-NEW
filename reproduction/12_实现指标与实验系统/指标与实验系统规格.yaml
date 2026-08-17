@@ -1,0 +1,28 @@
+step: 12
+scope: 论文评价指标、批处理、配对种子和原始结果记录
+matlab_metrics:
+  normalization: 同一实例、重复和比较组的全部算法解合并后逐目标min-max
+  hv: 二维精确Lebesgue测度，归一化参考点[1.1, 1.1]
+  igd: 参考前沿每点到近似集的最近欧氏距离平均值
+  spacing: 各点最近L1距离的样本标准差
+  c_metric: 右集中被左集严格Pareto支配的解比例
+  rsi_weights: [0.3333, 0.3333, 0.3333]
+dynamic_components:
+  MCR: (剩余工序数-重调度前后机器不变数)/剩余工序数
+  Alpha: AGV总能耗/剩余工序数
+  APSD: 默认保留活跃MATLAB中col代替col2的下标行为
+seed_policy: 实例、重复号和场景确定种子，算法名不参与，以保证配对
+tracking:
+  - Git提交哈希、Python版本、配置和输入文件SHA-256
+  - 算法、实例、重复号、场景、种子、计算预算和运行时
+  - 原始Pareto目标、MATLAB一基染色体、收敛曲线、Q表和评价次数
+  - 成功或失败状态与异常信息
+outputs:
+  - manifest.json
+  - summary.json
+  - summary.csv
+  - aggregate_summary.json
+  - aggregate_summary.csv
+  - pareto_plot_data.csv
+  - boxplot_data.csv
+boundary: 第12步只验收系统；20次论文规模重复实验属于第14步

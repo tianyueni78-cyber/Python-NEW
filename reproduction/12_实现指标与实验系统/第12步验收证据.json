@@ -1,0 +1,41 @@
+{
+  "step": 12,
+  "status": "pass",
+  "matlab_reference": "python_baseline/data/matlab_reference/metrics_step12.json",
+  "fixed_reference": {
+    "hv": [0.6544444444444447, 0.537777777777778],
+    "igd": [0.12167605132909616, 0.19621165057908915],
+    "spacing": [0.0, 0.0],
+    "c_ab": 0.0,
+    "c_ba": 0.0
+  },
+  "tests": {
+    "step12": {"passed": 9, "failed": 0},
+    "all": {"passed": 81, "failed": 0}
+  },
+  "smoke_batch": {
+    "configuration": "experiments/step12_smoke.json",
+    "run_count": 8,
+    "success_count": 8,
+    "paired_seed": 2136602614,
+    "algorithms": ["qnsga2", "nsga2", "moead", "mopso", "ablation_A", "ablation_B", "ablation_C", "ablation_full"],
+    "purpose": "验收实验系统，不作为论文性能结论"
+  },
+  "tracking": {
+    "seed": true,
+    "git_commit": true,
+    "python_version": true,
+    "configuration": true,
+    "input_sha256": true,
+    "resource_sha256": true,
+    "runtime": true,
+    "evaluation_count": true,
+    "raw_pareto_objectives": true,
+    "raw_chromosomes": true,
+    "curves": true,
+    "failure_manifest": true,
+    "no_overwrite": true
+  },
+  "snapshot_sha256_match": true,
+  "boundary": "Gate 7和论文规模重复实验未完成；不宣称完整baseline成立"
+}
