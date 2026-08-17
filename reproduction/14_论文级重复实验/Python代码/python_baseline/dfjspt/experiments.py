@@ -88,7 +88,8 @@ def _git_commit(root: Path) -> str:
 
 
 def _run(data, spec: ExperimentSpec, seed: int):
-    common = dict(population_size=spec.population_size, generations=spec.generations, seed=seed)
+    generations = None if spec.time_limit_seconds is not None else spec.generations
+    common = dict(population_size=spec.population_size, generations=generations, seed=seed)
     if spec.algorithm == "qnsga2":
         return run_qnsga2(data, **common)
     if spec.algorithm == "nsga2":

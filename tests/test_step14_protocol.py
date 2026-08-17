@@ -62,9 +62,11 @@ class Step14ProtocolTests(unittest.TestCase):
             n_folder = output / manifest["runs"][1]["run_id"]
             q_result = json.loads((q_folder / "result.json").read_text("utf-8"))
             n_config = json.loads((n_folder / "config.json").read_text("utf-8"))
+            n_result = json.loads((n_folder / "result.json").read_text("utf-8"))
             self.assertEqual(
                 n_config["time_limit_seconds"], q_result["elapsed_seconds"]
             )
+            self.assertGreater(n_result["evaluations"], 10)
             second = run_batch(
                 specs, output, ROOT / "python_baseline" / "data", resume=True
             )
