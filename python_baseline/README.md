@@ -1,6 +1,11 @@
 # Python baseline
 
-这里保存忠实的 Python 复现。当前已完成第4步统一数据层。
+这里保存忠实的 Python 复现。当前已完成第6步静态解码与目标函数。
+
+```powershell
+python scripts/run_decoder.py --instance Mk05 --seed 20260817 --output results/Mk05_decoder_step6.json
+python scripts/check_gate3.py
+```
 
 读取一个完整实验输入：
 

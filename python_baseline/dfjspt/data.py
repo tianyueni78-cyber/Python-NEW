@@ -138,8 +138,11 @@ class AGVParameters:
     def validate(self) -> None:
         if self.count <= 0:
             raise DataFormatError("AGV 数量必须为正数")
-        if any(len(values) != self.count for values in (self.speeds, self.idle_energy, self.loaded_energy)):
-            raise DataFormatError("AGV 参数向量长度必须等于 AGV 数量")
+        if not self.speeds or any(
+            len(values) != len(self.speeds)
+            for values in (self.idle_energy, self.loaded_energy)
+        ):
+            raise DataFormatError("AGV速度和两类能耗档位长度必须一致")
         if any(speed <= 0 for speed in self.speeds):
             raise DataFormatError("AGV 速度必须为正数")
         if not 0 <= self.minimum_energy < self.maximum_energy:
@@ -245,9 +248,9 @@ def _agv_parameters(job_count: int) -> AGVParameters:
         raise DataFormatError(f"实验协议未定义 {job_count} 个工件对应的 AGV 数量") from error
     return AGVParameters(
         count=count,
-        speeds=(1.0,) * count,
-        idle_energy=(0.6,) * count,
-        loaded_energy=(1.5,) * count,
+        speeds=(1.0,) * 4,
+        idle_energy=(0.6,) * 4,
+        loaded_energy=(1.5,) * 4,
     )
 
 

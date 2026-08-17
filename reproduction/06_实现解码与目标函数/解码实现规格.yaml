@@ -1,0 +1,38 @@
+步骤: 6
+范围: 静态DFJSP-T五段染色体解码与目标函数
+MATLAB依据:
+  - sorting.m
+  - fitness.m
+  - table_insert.m
+  - decompose_machineTable.m
+  - decompose_AGVTable.m
+  - load_transfer_time_compute.m
+  - spare_transfer_time_compute.m
+输入:
+  染色体: OS、MS、AS、逐工序交错的空载与负载速度基因
+  数据: Brandimarte实例、距离、机器能耗、AGV参数
+过程:
+  - 按OS出现次序确定下一道工序
+  - 在每道工序前检查全部AGV并执行低电量充电
+  - 安排AGV空载转移和负载转移
+  - 将工序左移插入最早可容纳的机器空闲块
+  - 更新工件完成时间、所在机器和AGV电量轨迹
+目标:
+  目标1: 最大工件加工完成时间
+  目标2: 机器加工能耗加有限空闲块能耗
+  仅记录: AGV累计耗电，不纳入原fitness.m第二目标
+原代码边界:
+  - 成品返回卸载站代码被注释，不参与静态目标
+  - 终端无限空闲块不计机器能耗
+  - AGV充电增加量不计入耗电，只有电量下降计入
+  - 充电前往卸载站固定使用第3速度和第3空载能耗档位
+验收:
+  Gate: Gate 3
+  固定参照: Mk05固定染色体
+  要求:
+    - 两个目标值一致
+    - AGV记录能耗一致
+    - 全部机器时间表一致
+    - 全部AGV时间表一致
+    - 全部电量轨迹和充电次数一致
+    - Mk01至Mk10合法解码

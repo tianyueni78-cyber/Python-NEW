@@ -42,14 +42,24 @@ class Chromosome:
                 f"MATLAB染色体长度应为 {5 * operation_count}，实际为 {len(row)}"
             )
         values = tuple(int(value) - 1 for value in row)
-        segments = tuple(
-            values[index * operation_count : (index + 1) * operation_count]
-            for index in range(5)
-        )
-        return cls(*segments)
+        os = values[:operation_count]
+        ms = values[operation_count : 2 * operation_count]
+        agv = values[2 * operation_count : 3 * operation_count]
+        speed = values[3 * operation_count :]
+        return cls(os, ms, agv, speed[::2], speed[1::2])
 
     def to_matlab_row(self) -> list[int]:
-        return [gene + 1 for segment in self.segments for gene in segment]
+        speed = [
+            gene + 1
+            for pair in zip(self.empty_speed, self.loaded_speed)
+            for gene in pair
+        ]
+        return [
+            *(gene + 1 for gene in self.os),
+            *(gene + 1 for gene in self.ms),
+            *(gene + 1 for gene in self.agv),
+            *speed,
+        ]
 
     def validate(self, instance: FJSPInstance, agv_count: int, speed_count: int) -> None:
         operation_count = instance.operation_count

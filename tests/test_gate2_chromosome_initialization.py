@@ -27,6 +27,19 @@ def load_instance(index: int):
 
 
 class ChromosomeTests(unittest.TestCase):
+    def test_matlab_speed_genes_are_interleaved_by_operation(self):
+        chromosome = Chromosome(
+            os=(0, 0),
+            ms=(0, 1),
+            agv=(1, 0),
+            empty_speed=(0, 1),
+            loaded_speed=(2, 3),
+        )
+        self.assertEqual(
+            chromosome.to_matlab_row(),
+            [1, 1, 1, 2, 2, 1, 1, 3, 2, 4],
+        )
+
     def test_matlab_row_round_trip_preserves_five_segments(self):
         data = load_instance(1)
         operation_count = data.instance.operation_count
