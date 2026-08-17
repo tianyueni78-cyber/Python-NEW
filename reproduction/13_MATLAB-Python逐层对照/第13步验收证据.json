@@ -1,0 +1,24 @@
+{
+  "step": 13,
+  "status": "pass",
+  "matlab_reexport": {
+    "status": "pass",
+    "original_source_modified": false,
+    "reference_diff_after_reexport": false,
+    "groups": ["input", "initialization", "decoder", "multiobjective", "q_learning", "dynamic", "metrics"]
+  },
+  "checks": [
+    {"gate": 1, "status": "pass", "command": "python scripts/check_gate1.py"},
+    {"gate": 2, "status": "pass", "command": "python scripts/check_gate2_initialization.py --population 100"},
+    {"gate": 3, "status": "pass", "command": "python scripts/check_gate3.py"},
+    {"gate": 4, "status": "pass", "command": "python scripts/check_gate4.py"},
+    {"gate": 5, "status": "pass", "command": "python scripts/check_gate5.py"},
+    {"gate": 6, "status": "pass", "command": "python scripts/check_gate6.py"},
+    {"gate": "metrics", "status": "pass", "command": "python scripts/check_step12.py"}
+  ],
+  "deterministic_modules": "固定输入逐项一致",
+  "stochastic_modules": "固定选择、种子可重复和机制边界已通过",
+  "tests": {"step13_passed": 1, "all_passed": 82, "failed": 0},
+  "unresolved": ["论文规模随机结果分布与排名待第14步Gate 7验证"],
+  "baseline_complete": false
+}

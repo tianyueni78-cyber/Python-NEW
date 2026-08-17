@@ -1,0 +1,42 @@
+step: 13
+scope: MATLAB-Python固定输入逐层对照
+reference_groups:
+  input:
+    evidence: benchmarkRead.m -> python_baseline/dfjspt/data.py
+    sample: Mk01-Mk10
+    check: scripts/check_gate1.py
+    tolerance: 结构与数值精确相等
+  chromosome:
+    evidence: initial_NSGA-II/init.m、交叉、变异、N1-N6 -> chromosome.py、initialization.py、variation.py、neighborhoods.py
+    sample: Mk05固定MATLAB种子与Mk01-Mk10合法性
+    check: scripts/check_gate2_initialization.py --population 100
+    tolerance: 整数基因精确相等；随机输出按固定选择和可行性验证
+  decoder:
+    evidence: initial_NSGA-II/sorting.m、fitness.m -> python_baseline/dfjspt/decoder.py
+    sample: Mk05固定染色体
+    check: scripts/check_gate3.py
+    tolerance: 1.0e-9
+  multiobjective:
+    evidence: QNSGA-II与NSGA-II活跃多目标链 -> multiobjective.py、variation.py
+    sample: 固定目标矩阵和固定选择
+    check: scripts/check_gate4.py
+    tolerance: 排名和顺序精确相等；有限拥挤度1.0e-12
+  q_learning:
+    evidence: initial_NSGA-II状态、动作、奖励、Q更新、N1-N6 -> qnsga2.py、neighborhoods.py
+    sample: 固定中位数、动作、奖励分支和小规模运行
+    check: scripts/check_gate5.py
+    tolerance: 离散行为精确相等；Q值1.0e-12
+  dynamic:
+    evidence: 三类动态initial、事件、CRS链 -> python_baseline/dfjspt/dynamic.py
+    sample: Mk05事件时刻100及三类事件
+    check: scripts/check_gate6.py
+    tolerance: 工序集合和约束精确相等；时间1.0e-9
+  metrics:
+    evidence: HV、IGD、Spacing、C-metric、动态fitness.m -> python_baseline/dfjspt/metrics.py
+    sample: 固定二目标矩阵
+    check: scripts/check_step12.py
+    tolerance: 1.0e-12
+orchestrator: scripts/check_step13.py --json
+deterministic_acceptance: 固定输入下逐项一致
+stochastic_acceptance: 本步验证固定随机选择、种子可重复和机制边界
+deferred: 随机算法分布、排名和论文规模统计一致性属于第14步和Gate7
