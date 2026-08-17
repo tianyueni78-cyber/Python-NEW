@@ -1,0 +1,32 @@
+{
+  "阶段": 9,
+  "实现提交": "21b79708d40ecd4ff99b2b8144433551da7ed6fc",
+  "结论": "通过",
+  "独立入口": [
+    "python_baseline.dfjspt.nsga2.run_nsga2",
+    "python_baseline.dfjspt.moead.run_moead",
+    "python_baseline.dfjspt.mopso.run_mopso"
+  ],
+  "MATLAB固定参考": "python_baseline/data/matlab_reference/comparators_step9.json",
+  "MATLAB固定机制一致": true,
+  "统一Gate3目标": true,
+  "小规模运行全部合法": true,
+  "固定验收评价次数": {
+    "NSGA-II": 20,
+    "MOEA/D": 41,
+    "MOPSO": 18
+  },
+  "第9步新增测试": 11,
+  "全量测试": 61,
+  "失败测试": 0,
+  "既有Gate": {
+    "Gate1": "通过",
+    "Gate2": "通过",
+    "Gate3": "通过",
+    "Gate4": "通过",
+    "Gate5": "通过"
+  },
+  "快照Python文件数": 8,
+  "SHA256全部一致": true,
+  "完整baseline成立": false
+}
