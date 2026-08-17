@@ -1,0 +1,27 @@
+# 第2步完成报告：完整算法规格
+
+## 已覆盖范围
+
+- DFJSP-T资源、假设、决策与目标；
+- OS/MS/AS及速度编码；
+- Tent混沌混合初始化；
+- 机器—AGV—充电联合左移解码；
+- 选择、交叉、变异、非支配排序、拥挤距离与精英保留；
+- Q-learning四状态、六动作、奖励、epsilon与Q更新；
+- 完整QNSGA-II真实循环；
+- NSGA-II、MOEA/D、MOPSO；
+- A/B/C三种消融；
+- 订单撤销、机器故障、AGV故障及IS/RS/CS；
+- HV、IGD、C-metric、MCR、AGV能耗平衡、APSD和RSI；
+- 论文参数与源码参数差异。
+
+## 阶段产物
+
+- `algorithm_spec.yaml`：后续Python实现的机器可读规格源；
+- `PAPER_MATLAB_MAPPING.md`：论文概念到真实MATLAB路径的映射；
+- `SPEC_DECISIONS.md`：所有影响baseline的未决差异及处理边界；
+- 本报告。
+
+## 完成含义
+
+“第2步完成”表示需要实现的规则、调用顺序和冲突已经显式化；不表示冲突已被擅自修复，也不表示Python baseline已经实现。第3步锁定实验协议时必须对停止预算、实例、重复次数和需保留的双配置作出可审计选择。

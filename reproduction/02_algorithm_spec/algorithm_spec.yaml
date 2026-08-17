@@ -1,0 +1,156 @@
+spec_version: 0.2
+status: extracted_not_implemented
+source_priority: [paper, active_matlab_call_path, input_and_saved_results, backup_or_comments]
+indexing:
+  matlab: one_based
+  python_target: zero_based_with_explicit_boundary_conversion
+problem:
+  name: DFJSP-T
+  resources: [jobs, operations, machines, agvs, charging_area, load_unload_area]
+  assumptions:
+    - one AGV transports a job at a time
+    - one machine processes an operation at a time
+    - loaded and unloaded AGV energy rates differ
+    - minimum battery threshold guarantees safe completion and return to charging
+    - loaded AGV cannot divert to charging
+    - charging is uninterrupted until maximum threshold
+    - path conflicts are ignored
+  objectives:
+    f1: "makespan=max(job completion time)"
+    f2_paper: "TEC=machine busy energy+machine idle energy"
+    f2_code_total_variant: "machine energy+AGV energy"
+    f2_code_machine_only_variant: "machine energy only"
+    decision: unresolved_baseline_invalidating
+chromosome:
+  paper: [OS, MS, AS]
+  static_matlab: [OS, MS, AS, unloaded_speed, loaded_speed]
+  dimension_static: "5*sum(operaVec)"
+  dynamic_matlab_variants: [three_segment, five_segment]
+  semantics:
+    OS: "j-th occurrence of job i denotes operation O_ij"
+    MS: "index into each operation's candidate-machine list"
+    AS: "AGV identifier per operation in job-operation order"
+    speed_segments: "indices into AGVSpeed for empty and loaded movement"
+  decision: unresolved_baseline_invalidating
+initialization:
+  common: tent_chaotic_mapping
+  paper_ratios: [0.6, 0.2, 0.2]
+  active_static_ratios: [0.4, 0.3, 0.3]
+  subpopulations:
+    - chaotic_all_segments
+    - shortest_accumulated_machine_time_and_nearest_agv
+    - minimum_machine_energy_and_minimum_agv_load
+  chaos_special_points: [0, 0.25, 0.5, 0.75]
+  decision: unresolved_baseline_invalidating
+decoder:
+  call_chain: [fitness, sorting, table_insert, decompose_machineTable, decompose_AGVTable]
+  policy: active_left_shift_insertion
+  operation_order:
+    - decode OS occurrence to job-operation
+    - decode candidate machine and AGV
+    - read empty/load speed when five-segment variant is active
+    - check AGV battery and insert travel-to-charge plus uninterrupted charge if required
+    - compute empty travel to job location
+    - compute loaded travel to selected machine
+    - respect predecessor-operation completion and AGV availability
+    - left-shift transport tasks into AGV schedule
+    - left-shift processing into selected machine schedule
+    - update resource times, positions, battery, charge count and job completion
+  outputs: [machineTable, AGVTable, jobCompleteUnLoad, agvEGRecord, agvChargeNum]
+energy:
+  machine_busy: "sum(processing_duration*machine_work_rate)"
+  machine_idle: "sum(machine_idle_duration*machine_idle_rate)"
+  agv: "empty/load/charge-related records computed by fitness/sorting variant"
+genetic_operators:
+  selection: binary_tournament_by_rank_then_crowding
+  OS_crossover: precedence_operation_crossover
+  MS_AS_speed_crossover: multipoint_exchange
+  OS_mutation: exchange_positions_of_different_jobs
+  MS_AS_mutation: replace_with_other_feasible_resource
+  speed_mutation: replace_speed_index_with_valid_level
+multiobjective:
+  dominance: pareto_minimization
+  environmental_selection: nondominated_sort_plus_crowding_then_population_truncation
+  qnsga2_static_stop: generations
+  comparator_stop: cpu_time_equal_to_qnsga2_runtime
+q_learning:
+  q_shape: [4, 6]
+  initial_q: 0
+  state: "four quadrants formed by population medians of makespan and energy"
+  actions: [N1, N2, N3, N4, N5, N6]
+  alpha_paper_selected: 0.1
+  gamma_paper_selected: 0.9
+  reward:
+    dominates_old: "2+sum((fmax-new)/(fmax-fmin))"
+    dominated_by_old: 0
+    nondominated: "1+sum((fmax-new)/(fmax-fmin))"
+  update: "Q[s,a]+=alpha*(reward+gamma*max(Q[next,:])-Q[s,a])"
+  epsilon_paper: "1/(1+exp(1.1-5*g/GEN))"
+  epsilon_static_code: "1/(1+exp(-(8*(g+1)/GEN-3)))"
+  selection_code: "random if rand>epsilon or state row all zero; otherwise argmax Q"
+  decision: unresolved_baseline_invalidating
+neighborhoods:
+  N1: reverse_or_reinsert_an_adjacent_OS_interval
+  N2: remove_two_OS_operations_then_reinsert_in_deletion_order
+  N3: randomly_change_one_operation_machine
+  N4: move_eligible_operation_from_most_loaded_to_least_loaded_candidate_machine
+  N5: randomly_change_one_operation_AGV
+  N6: exploit_waiting_interval_of_early_empty_AGV_to_replace_other_transport
+algorithms:
+  qnsga2:
+    matlab_entry: "initial_NSGA-II/initial_INSGA_II.m"
+    loop: [initialize, evaluate, tournament, variation, evaluate_offspring, environmental_selection, state_partition, q_selected_vns, q_update, environmental_selection]
+  nsga2:
+    matlab_entry: "NSGA-II/NSGA2.m"
+    loop: [evaluate_initial, nondominated_sort, tournament, variation, evaluate, merge, environmental_selection]
+  moead:
+    matlab_entry: "MOEAD/MOEAD.m"
+    decomposition: weighted_chebyshev
+    neighborhood_size: "round(pop/20)"
+    delta: 0.8
+    crossover: 0.8
+    mutation: 0.2
+    special_behavior: random_evaluation_thinning_present
+  mopso:
+    matlab_entry: "MOPSO/MOPSO.m"
+    inertia: 0.4
+    c1: 2
+    c2: 2
+    grid_count: 20
+    mutation_parameter: 0.4
+    special_behavior: VNS_is_present_so_not_plain_library_MOPSO
+ablations:
+  A: {meaning: random_initialization_classical_nsga2, matlab: "NSGA-II/NSGA2.m"}
+  B: {meaning: hybrid_initialization_without_local_search, matlab: "Multi-NSGA-II/initial_INSGA_II.m"}
+  C: {meaning: hybrid_initialization_with_random_neighborhood, matlab: "QNSGA-II/initial_INSGA_II.m"}
+  full: {meaning: hybrid_initialization_with_q_learning_neighborhood, matlab: "initial_NSGA-II/initial_INSGA_II.m"}
+dynamic:
+  state_extraction: "freeze completed/current tasks; derive earliest resource availability, positions, battery and remaining operations at event time"
+  order_cancellation:
+    RS: "remove cancelled job; preserve remaining OS/MS order/assignments required by strategy; reoptimize permitted segments"
+    IS: continue_initial_schedule_with_cancelled_job_removed_or_minimal_repair
+    CS: completely_reinitialize_remaining_problem
+  machine_failure:
+    RS: "nonfailed-machine assignments remain; affected future operations may reselect machines; AGV assignment may change; failed machine unavailable until repair"
+    IS: right_shift_or_continue_initial_assignment
+    CS: completely_reinitialize_remaining_problem
+  agv_failure:
+    RS: "machine assignment fixed; OS/AGV assignment may change; loaded/empty failure state and postrepair continuation inherited"
+    IS: continue_initial_schedule_after_delay
+    CS: completely_reinitialize_remaining_problem
+metrics:
+  HV: larger_is_better
+  IGD: smaller_is_better
+  C_metric: fraction_of_set_B_dominated_by_set_A
+  MCR: "changed-machine operations / applicable operation count"
+  agv_balance: population_standard_deviation_of_AGV_energy
+  APSD: "sum(abs(rescheduled_start-original_start))/remaining_operation_count"
+  RSI: "lambda1*MCR+lambda2*agv_balance+lambda3*APSD"
+  RSI_weights: [0.3333, 0.3333, 0.3333]
+experiment_constants:
+  population: 100
+  crossover: 0.8
+  mutation_qnsga2: 0.1
+  repetitions_paper: 20
+  reference_point_hv_code: [1.1, 1.1]
+  reference_front_igd: nondominated_union_of_all_comparison_solutions
