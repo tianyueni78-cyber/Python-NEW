@@ -52,10 +52,13 @@ def run_qnsga2(
     mutation_probability: float = 0.1,
     alpha: float = 0.1,
     gamma: float = 0.9,
+    mode: str = "full",
 ) -> QNSGA2Result:
     """按initial_NSGA-II/initial_INSGA_II.m的活动顺序运行。"""
     if generations <= 0:
         raise ValueError("迭代代数必须为正")
+    if mode not in {"full", "hybrid_only", "random_neighborhood"}:
+        raise ValueError("QNSGA-II模式必须是full、hybrid_only或random_neighborhood")
     rng = random.Random(seed)
     population = list(
         hybrid_population(data, population_size, len(data.agv.speeds), rng).chromosomes
@@ -94,6 +97,23 @@ def run_qnsga2(
         population = [candidates[index] for index in selected]
         objectives = [candidate_objectives[index] for index in selected]
 
+        if mode == "hybrid_only":
+            order, ordered_ranks, ordered_crowding = _qnsga_order(objectives)
+            population = [population[index] for index in order]
+            objectives = [objectives[index] for index in order]
+            ranks = [ordered_ranks[index] for index in order]
+            crowding = [ordered_crowding[index] for index in order]
+            curve_min.append(
+                (min(row[0] for row in objectives), min(row[1] for row in objectives))
+            )
+            curve_average.append(
+                (
+                    sum(row[0] for row in objectives) / population_size,
+                    sum(row[1] for row in objectives) / population_size,
+                )
+            )
+            continue
+
         time_median = sorted(value[0] for value in objectives)[population_size // 2 - 1 : population_size // 2 + 1]
         energy_median = sorted(value[1] for value in objectives)[population_size // 2 - 1 : population_size // 2 + 1]
         time_boundary = sum(time_median) / len(time_median)
@@ -110,7 +130,11 @@ def run_qnsga2(
         epsilon_value = epsilon(generation, generations)
         for state, group in enumerate(state_groups):
             for index in group:
-                action = select_action(qtable, current_state, epsilon_value, rng)
+                action = (
+                    rng.randrange(6)
+                    if mode == "random_neighborhood"
+                    else select_action(qtable, current_state, epsilon_value, rng)
+                )
                 neighbor = apply_neighborhood(data, population[index], action, rng)
                 new_objective = _evaluate(data, neighbor)
                 evaluations += 1
@@ -118,10 +142,11 @@ def run_qnsga2(
                 if not all(old <= new for old, new in zip(old_objective, new_objective)):
                     accepted_chromosomes.append(neighbor)
                     accepted_objectives.append(new_objective)
-                current_state = state
-                reward = reward_value(old_objective, new_objective, maximum, minimum)
-                next_state = state_of(new_objective, time_boundary, energy_boundary)
-                update_q(qtable, current_state, action, reward, next_state, alpha, gamma)
+                if mode == "full":
+                    current_state = state
+                    reward = reward_value(old_objective, new_objective, maximum, minimum)
+                    next_state = state_of(new_objective, time_boundary, energy_boundary)
+                    update_q(qtable, current_state, action, reward, next_state, alpha, gamma)
 
         candidates = population + accepted_chromosomes
         candidate_objectives = objectives + accepted_objectives

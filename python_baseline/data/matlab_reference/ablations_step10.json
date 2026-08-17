@@ -1,0 +1,63 @@
+{
+  "variants": {
+    "A": {
+      "name": "A",
+      "random_initialization": true,
+      "hybrid_initialization": false,
+      "initial_nondomination_sort": true,
+      "has_local_search": false,
+      "neighborhood_count": 0,
+      "random_action": false,
+      "q_action": false,
+      "q_update": false,
+      "generation_stop": false,
+      "cpu_time_stop": true
+    },
+    "B": {
+      "name": "B",
+      "random_initialization": false,
+      "hybrid_initialization": true,
+      "initial_nondomination_sort": false,
+      "has_local_search": false,
+      "neighborhood_count": 0,
+      "random_action": false,
+      "q_action": false,
+      "q_update": false,
+      "generation_stop": false,
+      "cpu_time_stop": true
+    },
+    "C": {
+      "name": "C",
+      "random_initialization": false,
+      "hybrid_initialization": true,
+      "initial_nondomination_sort": false,
+      "has_local_search": true,
+      "neighborhood_count": 6,
+      "random_action": true,
+      "q_action": false,
+      "q_update": false,
+      "generation_stop": true,
+      "cpu_time_stop": false
+    },
+    "full": {
+      "name": "full",
+      "random_initialization": false,
+      "hybrid_initialization": true,
+      "initial_nondomination_sort": false,
+      "has_local_search": true,
+      "neighborhood_count": 6,
+      "random_action": true,
+      "q_action": true,
+      "q_update": true,
+      "generation_stop": true,
+      "cpu_time_stop": false
+    }
+  },
+  "locked_order": [
+    "A",
+    "B",
+    "C",
+    "full"
+  ],
+  "fair_python_stop": "same_generations"
+}

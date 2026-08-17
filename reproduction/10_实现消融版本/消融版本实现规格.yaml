@@ -1,0 +1,44 @@
+阶段: 10
+版本:
+  A:
+    名称: 基础NSGA-II
+    matlab_entry: 第2篇代码 - 静态算法对比/NSGA-II/NSGA2.m
+    初始化: random
+    邻域: none
+    动作: none
+    Q更新: false
+  B:
+    名称: 混合初始化NSGA-II
+    matlab_entry: 第2篇代码 - 静态算法对比/Multi-NSGA-II/initial_INSGA_II.m
+    初始化: hybrid
+    邻域: none
+    动作: none
+    Q更新: false
+  C:
+    名称: 随机邻域NSGA-II
+    matlab_entry: 第2篇代码 - 静态算法对比/QNSGA-II/initial_INSGA_II.m
+    初始化: hybrid
+    邻域: N1-N6
+    动作: uniform_random
+    Q更新: false
+  full:
+    名称: 完整QNSGA-II
+    matlab_entry: 第2篇代码 - 静态算法对比/initial_NSGA-II/initial_INSGA_II.m
+    初始化: hybrid
+    邻域: N1-N6
+    动作: q_learning
+    Q更新: true
+公共条件:
+  解码目标: Gate3权威静态解码与目标
+  种群规模: 各版本相同
+  代数: 各版本相同
+  交叉率: 0.8
+  变异率: 0.1
+  随机种子: 每次运行记录
+已知源码漂移:
+  - B的MATLAB入口按CPU时间停止，其他三版本按代数停止；Python公平消融统一按代数
+  - MATLAB和Python随机流不同，不要求逐代随机轨迹相同
+边界:
+  - 不实现第11步动态事件
+  - 不计算第12步论文指标
+  - 不执行第14步20次论文规模实验
