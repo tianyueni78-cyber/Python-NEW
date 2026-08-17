@@ -1,0 +1,28 @@
+{
+  "阶段": 10,
+  "实现提交": "2f72d70d34b640f7fd2564a09d353dffe55a4902",
+  "结论": "通过",
+  "版本": ["A", "B", "C", "full"],
+  "MATLAB固定参考": "python_baseline/data/matlab_reference/ablations_step10.json",
+  "四版本特征矩阵一致": true,
+  "默认完整版与显式full一致": true,
+  "统一代数停止": true,
+  "四版本固定种子可重复": true,
+  "四版本输出合法": true,
+  "A_B_C_Q表保持零": true,
+  "完整版本Q表已更新": true,
+  "固定验收评价次数": {
+    "A": 28,
+    "B": 29,
+    "C": 47,
+    "full": 46
+  },
+  "第10步新增测试": 6,
+  "全量测试": 67,
+  "失败测试": 0,
+  "既有Gate1到Gate5": "全部通过",
+  "第9步验收": "通过",
+  "快照Python文件数": 5,
+  "SHA256全部一致": true,
+  "完整baseline成立": false
+}
