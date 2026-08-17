@@ -70,13 +70,13 @@ class ChromosomeTests(unittest.TestCase):
 
 
 class InitializationTests(unittest.TestCase):
-    def test_gate2_initialization_audit_reports_partial_pass(self):
+    def test_gate2_audit_reports_complete_pass(self):
         report = check_initialization(population_size=10)
-        self.assertEqual(report["结论"], "第5步范围通过")
+        self.assertEqual(report["结论"], "通过")
         self.assertEqual(report["Python合法实例数"], 10)
         self.assertEqual(report["MATLAB参照合法染色体数"], 10)
-        self.assertFalse(report["Gate2全部通过"])
-        self.assertEqual(report["Gate2尚缺"], ["N1-N6邻域算子"])
+        self.assertTrue(report["Gate2全部通过"])
+        self.assertEqual(report["Gate2尚缺"], [])
 
     def test_run_entry_returns_reproducible_serializable_population(self):
         first = create_initialization_result("Mk01", "hybrid", 10, 4, 77)

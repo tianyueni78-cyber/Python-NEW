@@ -1,4 +1,4 @@
-"""检查Gate 2中属于第5步的染色体与初始化范围。"""
+"""检查Gate 2的编码、初始化、交叉、变异和N1—N6合法性。"""
 
 from __future__ import annotations
 
@@ -10,10 +10,13 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 from python_baseline.dfjspt.chromosome import Chromosome
 from python_baseline.dfjspt.data import load_experiment_input
 from python_baseline.dfjspt.initialization import hybrid_population, random_population
+from python_baseline.dfjspt.neighborhoods import apply_neighborhood
 
 
 def check_initialization(population_size: int = 100) -> dict[str, object]:
@@ -24,12 +27,19 @@ def check_initialization(population_size: int = 100) -> dict[str, object]:
             data_root / "brandimarte" / f"Mk{index:02d}.fjs",
             data_root / "resources" / "static_algorithm_comparison.json",
         )
-        for population in (
+        populations = (
             hybrid_population(data, population_size, 4, random.Random(1000 + index)),
             random_population(data, population_size, 4, random.Random(2000 + index)),
-        ):
+        )
+        for population in populations:
             for chromosome in population.chromosomes:
                 chromosome.validate(data.instance, data.agv.count, 4)
+        parent = populations[0].chromosomes[0]
+        for action in range(6):
+            neighbor = apply_neighborhood(
+                data, parent, action, random.Random(3000 + index * 10 + action)
+            )
+            neighbor.validate(data.instance, data.agv.count, 4)
         valid_instances += 1
 
     mk05 = load_experiment_input(
@@ -49,20 +59,21 @@ def check_initialization(population_size: int = 100) -> dict[str, object]:
 
     return {
         "Gate": "Gate 2：染色体合法",
-        "当前已完成范围": "五段编码、MATLAB边界转换、纯随机初始化、40/30/30混合初始化、交叉、变异",
-        "结论": "第5步范围通过",
+        "当前已完成范围": "五段编码、初始化、交叉、变异、N1-N6邻域算子",
+        "结论": "通过",
         "Python合法实例数": valid_instances,
         "每实例每种初始化种群规模": population_size,
         "MATLAB参照实例": "Mk05",
         "MATLAB参照种子": matlab["seed"],
         "MATLAB参照合法染色体数": matlab_valid,
-        "Gate2全部通过": False,
-        "Gate2尚缺": ["N1-N6邻域算子"],
+        "N1-N6合法实例数": valid_instances,
+        "Gate2全部通过": True,
+        "Gate2尚缺": [],
     }
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="检查第5步对应的Gate 2范围")
+    parser = argparse.ArgumentParser(description="检查Gate 2")
     parser.add_argument("--population", type=int, default=100)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
