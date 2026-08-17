@@ -1,0 +1,13 @@
+{
+  "status": "preflight_pass",
+  "full_tests": 89,
+  "step13": "pass",
+  "static_runs_expected": 1600,
+  "dynamic_scenarios": 20,
+  "dynamic_repeats_expected": 400,
+  "dynamic_strategy_results_expected": 1200,
+  "resume_verified": true,
+  "paired_wallclock_budget_verified": true,
+  "dynamic_smoke_verified": true,
+  "gate7": "pending_formal_runs"
+}
