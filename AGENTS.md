@@ -82,6 +82,21 @@ Do not edit, rename, move, format, or delete original MATLAB files.
 
 Place the Python reproduction in a separate, clearly named directory.
 
+## Step snapshots and authoritative Python code
+
+Each completed reproduction step must contain a `Python代码/` directory with
+copies of every `.py` file created or changed by that step, preserving enough
+of the original directory structure to distinguish files with the same name.
+
+These files are read-only historical snapshots for locating and reviewing what
+each step produced. They are not the runtime source of truth.
+
+The repository-level `python_baseline/`, `scripts/`, and `tests/` directories
+contain the current authoritative executable code. Later fixes and algorithmic
+work must modify those authoritative files. Do not silently rewrite an older
+step snapshot to match later code; create the snapshot for the later step
+instead. Record the corresponding Git commit in each step completion report.
+
 Any MATLAB instrumentation needed for comparison must be:
 
 - minimal;
