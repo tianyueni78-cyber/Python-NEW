@@ -1,0 +1,45 @@
+阶段: 9
+名称: 实现三种对比算法
+范围:
+  包含: [NSGA-II, MOEA-D, MOPSO]
+  不包含: [消融版本, 动态重调度, 论文规模重复实验]
+公共基线:
+  数据: python_baseline/dfjspt/data.py
+  染色体: python_baseline/dfjspt/chromosome.py
+  解码与目标: python_baseline/dfjspt/decoder.py::decode_static
+  目标定义: [最后加工完成时间, 机器能耗]
+  随机性: Python随机种子可复现，不要求匹配MATLAB随机流
+NSGA-II:
+  matlab_entry: 第2篇代码 - 静态算法对比/NSGA-II/NSGA2.m
+  initialization: 普通随机五段染色体
+  parent_pool: round(population/2)
+  tournament_size: 2
+  variation: IPOX加MPX以及OS交换加RS重置
+  environmental_selection: rank优先且截断前沿按拥挤距离降序
+MOEA-D:
+  matlab_entry: 第2篇代码 - 静态算法对比/MOEAD/MOEAD.m
+  crossover_probability: 0.8
+  mutation_probability: 0.2
+  local_probability_delta: 0.8
+  neighborhood_size: round(population/20)
+  weights: 二目标线性等距权重
+  scalarization: 零权重先改为1e-5，再取倒数的加权切比雪夫
+  special_behavior: 每个候选以0.5概率continue而不评价
+MOPSO:
+  matlab_entry: 第2篇代码 - 静态算法对比/MOPSO/MOPSO.m
+  position_encoding: 每维范围[-job_count, job_count]的连续编码
+  inertia: 0.4
+  cognitive: 2.0
+  social: 2.0
+  repository_capacity: 200
+  grid_count: 20
+  max_velocity_percent: 6
+  uniform_mutation_fraction: 0.4
+  local_search: [N1, N2, N3]
+停止:
+  论文协议: 使用完整QNSGA-II实际CPU时间作为三算法共同time_limit_seconds
+  固定验证: generations提供确定的循环次数
+  约束: generations与time_limit_seconds至少一个为正
+已知差异:
+  - 三个MATLAB对比目录使用返回卸载站的makespan以及机器加AGV能耗；Python按公平协议统一使用Gate3权威目标
+  - MATLAB与Python随机数流不同，只要求固定Python种子可复现
