@@ -1,0 +1,44 @@
+步骤: 7
+范围: 共享多目标算子与NSGA系列共同遗传核心
+MATLAB依据:
+  主入口: 第2篇代码 - 静态算法对比/dif_main.m
+  QNSGA主链: initial_NSGA-II/initial_INSGA_II.m
+  经典NSGA链: NSGA-II/NSGA2.m
+  多目标函数:
+    - initial_NSGA-II/non_domination.m
+    - NSGA-II/non_domination.m
+    - NSGA-II/replace_chrom.m
+    - initial_NSGA-II/tournament_selection.m
+  遗传函数: initial_NSGA-II/variation.m
+优化方向: 全目标最小化
+支配: 全部目标不劣且至少一个目标严格更优
+非支配等级: 从1开始
+拥挤距离:
+  边界个体: 正无穷
+  中间个体: 相邻目标差除以该前沿目标极差后逐目标求和
+  零极差: MATLAB将中间个体也置为正无穷
+  排序稳定性: 相同键保持输入顺序
+环境选择:
+  - 依rank从小到大保留
+  - 截断前沿依拥挤距离从大到小保留
+  - 并列时保留原顺序
+锦标赛:
+  - rank较小者优先
+  - rank相同时拥挤距离较大者优先
+  - 仍并列时取候选中先出现者
+遗传算子:
+  OS交叉: IPOX
+  RS交叉: 对MS_AS_交错速度段执行MPX
+  OS变异: 交换两个不同工件的OS位置
+  RS变异: 随机重置最多round_0.05乘RS长度范围内的若干位置
+共享边界:
+  可共享: [完整QNSGA-II, 随机邻域消融C, 混合初始化消融B, 经典NSGA-II]
+  不共享: [MOEA-D特有variation, MOPSO粒子更新]
+随机一致性:
+  固定选择: 与MATLAB逐项一致
+  随机轨迹: Python记录种子并自身可重复_不要求与MATLAB随机流逐值相同
+评价预算:
+  QNSGA-II: 代数停止
+  对比算法: QNSGA-II实测CPU时间停止
+  决定: 不在公共模块中强制统一停止器_由独立算法入口保留真实行为
+验收: Gate 4

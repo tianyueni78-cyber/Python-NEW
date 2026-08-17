@@ -76,6 +76,7 @@ class InitializationTests(unittest.TestCase):
         self.assertEqual(report["Python合法实例数"], 10)
         self.assertEqual(report["MATLAB参照合法染色体数"], 10)
         self.assertFalse(report["Gate2全部通过"])
+        self.assertEqual(report["Gate2尚缺"], ["N1-N6邻域算子"])
 
     def test_run_entry_returns_reproducible_serializable_population(self):
         first = create_initialization_result("Mk01", "hybrid", 10, 4, 77)
