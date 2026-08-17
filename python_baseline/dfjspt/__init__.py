@@ -11,6 +11,8 @@ from .data import (
     load_experiment_input,
     load_resource_parameters,
 )
+from .chromosome import Chromosome, ChromosomeError
+from .initialization import InitializedPopulation, hybrid_population, random_population
 
 __all__ = [
     "AGVParameters",
@@ -22,5 +24,9 @@ __all__ = [
     "load_brandimarte",
     "load_experiment_input",
     "load_resource_parameters",
+    "Chromosome",
+    "ChromosomeError",
+    "InitializedPopulation",
+    "hybrid_population",
+    "random_population",
 ]
-

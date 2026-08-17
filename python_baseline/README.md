@@ -16,3 +16,9 @@ python -m unittest discover -s tests -v
 ```
 
 只有重新转换原“机器数据.xlsx”时才需要 `requirements-convert.txt` 中的 `openpyxl`；正常读取已转换数据不依赖第三方包。
+
+生成第5步初始种群：
+
+```powershell
+python scripts/run_initialization.py --instance Mk05 --mode hybrid --population 100 --speed-count 4 --seed 20260817 --output results/Mk05_initial_population.json
+```
