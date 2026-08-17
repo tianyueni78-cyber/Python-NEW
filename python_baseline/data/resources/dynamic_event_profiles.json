@@ -1,0 +1,23 @@
+{
+  "order_cancellation": {
+    "source": "订单撤销-动态算法对比/dif_main.m 与 机器数据.xlsx",
+    "distance_scale_from_static_coordinates": 0.1,
+    "machine_work_energy": [4.2, 4.4, 4.3, 4.0, 5.5, 6.4, 5.7, 4.2, 4.8, 5.6, 4.7, 6.1, 6.5, 4.0, 5.5],
+    "machine_idle_energy": [0.7, 0.7, 1.0, 0.8, 0.8, 1.2, 1.1, 0.9, 0.6, 1.1, 0.7, 1.1, 1.3, 0.9, 1.2],
+    "agv": {"count": 3, "speeds": [1.0, 1.0, 1.0], "idle_energy": [0.6, 0.6, 0.6], "loaded_energy": [1.5, 1.5, 1.5], "minimum_energy": 16.8, "maximum_energy": 100.0, "charging_power": 20.0}
+  },
+  "machine_failure": {
+    "source": "第2篇代码-动态算法对比/dif_main.m 与 机器数据.xlsx",
+    "distance_scale_from_static_coordinates": 1.0,
+    "machine_work_energy": [8.2, 8.4, 8.3, 8.0, 8.5, 9.4, 9.7, 8.2, 9.8, 10.6, 8.7, 9.1, 9.5, 8.0, 8.5],
+    "machine_idle_energy": [1.3, 1.1, 1.0, 1.3, 1.3, 1.2, 1.1, 1.1, 1.6, 1.1, 1.7, 1.1, 1.3, 1.0, 1.2],
+    "agv": {"count": 3, "speeds": [90.0], "idle_energy": [1.0], "loaded_energy": [3.0], "minimum_energy": 3.6, "maximum_energy": 24.0, "charging_power": 3.0, "charging_travel_speed": 90.0}
+  },
+  "agv_failure": {
+    "source": "AGV故障-动态算法对比/第2篇代码-动态算法对比/dif_main.m 与 机器数据.xlsx",
+    "distance_scale_from_static_coordinates": 1.0,
+    "machine_work_energy": [8.2, 8.4, 8.3, 8.0, 8.5, 9.4, 9.7, 8.2, 9.8, 10.6, 8.7, 9.1, 9.5, 8.0, 8.5],
+    "machine_idle_energy": [1.3, 1.1, 1.0, 1.3, 1.3, 1.2, 1.1, 1.1, 1.6, 1.1, 1.7, 1.1, 1.3, 1.0, 1.2],
+    "agv": {"count": 3, "speeds": [900.0, 900.0, 900.0], "idle_energy": [1.0, 1.0, 1.0], "loaded_energy": [3.0, 3.0, 3.0], "minimum_energy": 0.63, "maximum_energy": 2.4, "charging_power": 3.0}
+  }
+}

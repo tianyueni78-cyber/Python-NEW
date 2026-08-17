@@ -32,3 +32,18 @@ rules:
   RS_machine: 仅故障机受影响工序可改变MS，OS、AS、VS可重调
   RS_agv: 固定MS，OS、AS、VS可重调
   CS: OS、MS、AS、VS完全重调
+execution:
+  IS: 返回实际延迟或撤销后的时间表
+  RS: 返回事件约束下动态QNSGA-II的非支配染色体、目标与时间表
+  CS: 返回四段基因完全可变的动态QNSGA-II非支配染色体、目标与时间表
+  objectives: [makespan, machine_energy]
+  agv_energy: 仅记录，不进入第二目标
+resource_profiles:
+  order_cancellation: 3辆AGV，3个速度档均为1，电量16.8/100，充电功率20
+  machine_failure: 3辆AGV，单速度90，电量3.6/24，充电功率3
+  agv_failure: 3辆AGV，3个速度档均为900，电量0.63/2.4，充电功率3
+approved_correction:
+  machine_failure_charging_speed: 90
+  encoded_speed_count: 1
+  reason: MATLAB设置单速度90但充电分支误访问AGVSpeed(3)
+  user_approved: 2026-08-17

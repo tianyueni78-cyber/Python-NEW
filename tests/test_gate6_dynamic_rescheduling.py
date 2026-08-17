@@ -1,15 +1,18 @@
 import json
+import random
 import unittest
 from pathlib import Path
 
 from python_baseline.dfjspt.chromosome import Chromosome
-from python_baseline.dfjspt.data import load_experiment_input
+from python_baseline.dfjspt.data import load_dynamic_experiment_input, load_experiment_input
 from python_baseline.dfjspt.decoder import decode_static
+from python_baseline.dfjspt.initialization import hybrid_population
 from python_baseline.dfjspt.dynamic import (
     DynamicEvent,
     analyze_event,
     build_rescheduling_plan,
     execute_is,
+    execute_rescheduling,
     validate_dynamic_schedule,
 )
 
@@ -47,6 +50,36 @@ class DynamicReschedulingTests(unittest.TestCase):
         self.assertEqual(len(state.agv_battery), self.data.agv.count)
         self.assertEqual(state.unavailable_interval, (100.0, 120.0))
 
+    def test_three_active_event_chains_keep_independent_resource_profiles(self):
+        profile = DATA / "resources" / "dynamic_event_profiles.json"
+        base = DATA / "resources" / "static_algorithm_comparison.json"
+        expected = {
+            "order_cancellation": ((1.0, 1.0, 1.0), 16.8, 4.2, 2.0),
+            "machine_failure": ((90.0,), 3.6, 8.2, 20.0),
+            "agv_failure": ((900.0, 900.0, 900.0), 0.63, 8.2, 20.0),
+        }
+        for kind, values in expected.items():
+            data = load_dynamic_experiment_input(
+                DATA / "brandimarte" / "Mk01.fjs", base, profile, kind
+            )
+            self.assertEqual(data.agv.speeds, values[0])
+            self.assertEqual(data.agv.minimum_energy, values[1])
+            self.assertEqual(data.resources.machine_work_energy[0], values[2])
+            self.assertEqual(data.resources.load_to_machine[0], values[3])
+
+    def test_machine_failure_single_speed_uses_90_for_charging_return(self):
+        data = load_dynamic_experiment_input(
+            DATA / "brandimarte" / "Mk01.fjs",
+            DATA / "resources" / "static_algorithm_comparison.json",
+            DATA / "resources" / "dynamic_event_profiles.json",
+            "machine_failure",
+        )
+        chromosome = hybrid_population(data, 10, 1, random.Random(7)).chromosomes[0]
+        schedule = decode_static(data, chromosome)
+        self.assertGreater(schedule.makespan, 0.0)
+        self.assertEqual(data.agv.speeds, (90.0,))
+        self.assertEqual(data.agv.charging_travel_speed, 90.0)
+
     def test_completed_operations_remain_fixed_and_failure_interval_is_respected(self):
         event = DynamicEvent("machine_failure", 100.0, 3, 20.0)
         result = execute_is(self.data, self.chromosome, self.schedule, event)
@@ -62,6 +95,28 @@ class DynamicReschedulingTests(unittest.TestCase):
         }
         for key, interval in before.items():
             self.assertEqual(after[key], interval)
+
+    def test_machine_failure_splits_and_resumes_in_process_operation(self):
+        machine_index, block = next(
+            (index, block)
+            for index, table in enumerate(self.schedule.machine_tables)
+            for block in table
+            if block.job and block.end - block.start > 2.0
+        )
+        moment = (block.start + block.end) / 2
+        duration = 5.0
+        event = DynamicEvent("machine_failure", moment, machine_index + 1, duration)
+        result = execute_rescheduling(
+            self.data, self.chromosome, self.schedule, event, "RS",
+            population_size=10, generations=1, seed=17,
+        )
+        pieces = [
+            piece for piece in result.pareto_schedules[0].machine_tables[machine_index]
+            if (piece.job, piece.opera) == (block.job, block.opera)
+        ]
+        self.assertEqual(len(pieces), 2)
+        self.assertEqual(pieces[0].end, moment)
+        self.assertEqual(pieces[1].start, moment + duration)
 
     def test_order_cancellation_removes_every_operation_of_cancelled_job(self):
         event = DynamicEvent("order_cancellation", 100.0, 4, 0.0)
@@ -98,6 +153,32 @@ class DynamicReschedulingTests(unittest.TestCase):
         )
         self.assertIn("MS_FAULT_ONLY", machine_rs.mutable_segments)
         self.assertNotIn("MS", agv_rs.mutable_segments)
+
+    def test_rs_and_cs_return_actual_pareto_schedules(self):
+        events = (
+            DynamicEvent("order_cancellation", 100.0, 4),
+            DynamicEvent("machine_failure", 100.0, 3, 20.0),
+            DynamicEvent("agv_failure", 100.0, 1, 15.0),
+        )
+        for event in events:
+            for strategy in ("RS", "CS"):
+                result = execute_rescheduling(
+                    self.data,
+                    self.chromosome,
+                    self.schedule,
+                    event,
+                    strategy,
+                    population_size=10,
+                    generations=1,
+                    seed=20260817,
+                )
+                self.assertTrue(result.pareto_objectives)
+                self.assertEqual(len(result.pareto_objectives), len(result.pareto_schedules))
+                self.assertTrue(any(value != 0.0 for row in result.qtable for value in row))
+                for candidate in result.pareto_schedules:
+                    validate_dynamic_schedule(
+                        self.data, self.chromosome, self.schedule, candidate, event
+                    )
 
 
 if __name__ == "__main__":

@@ -15,7 +15,10 @@ def main() -> int:
     result = subprocess.run(command, cwd=ROOT, check=False)
     if result.returncode:
         return result.returncode
-    print("Gate 6 PASS: dynamic state, failure constraints, and IS/RS/CS boundaries verified.")
+    print(
+        "Gate 6 PASS: inherited state, failure constraints, independent resources, "
+        "and actual RS/CS Pareto schedules verified."
+    )
     return 0
 
 

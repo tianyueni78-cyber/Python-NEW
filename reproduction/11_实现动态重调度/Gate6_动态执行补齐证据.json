@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "gate6_tests": 9,
+  "full_tests": 86,
+  "actual_rs_cs_pareto": true,
+  "dynamic_qtable_updated": true,
+  "event_kinds": ["order_cancellation", "machine_failure", "agv_failure"],
+  "strategies": ["IS", "RS", "CS"],
+  "independent_resource_profiles": true,
+  "machine_in_process_split_verified": true,
+  "step13_status": "pass",
+  "snapshot_sha256": {
+    "python_baseline/dfjspt/__init__.py": "061b3a3b9b4a1ec2d07919b449c0f5ca426e82c9de93ce1b9ce9e091dfe4de50",
+    "python_baseline/dfjspt/data.py": "0f5426ecb61b018f8ff33256389883aff62ea7dca6951eac4afcc5b1f148a590",
+    "python_baseline/dfjspt/decoder.py": "2abbc60b9a0de0cb0a96e666eb27c822ad60f7a610e626de244eea86a0b42643",
+    "python_baseline/dfjspt/dynamic.py": "b26f19acdb20f7725b590a2a822cd8e81b3f59b5aede4e84c008a8024ddf12e8",
+    "scripts/check_gate6.py": "1d7fae99849640154154f1549dad5f0fcdf321378269fdd5e79804b867ad9cd9",
+    "tests/test_gate6_dynamic_rescheduling.py": "bbf56c767b9398e6d14ef62826edc5a113f44fa17bea50b4f0299c017e6a769e"
+  }
+}

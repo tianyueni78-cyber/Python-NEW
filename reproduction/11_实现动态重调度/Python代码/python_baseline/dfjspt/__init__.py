@@ -9,6 +9,7 @@ from .data import (
     ResourceParameters,
     load_brandimarte,
     load_experiment_input,
+    load_dynamic_experiment_input,
     load_resource_parameters,
 )
 from .chromosome import Chromosome, ChromosomeError
@@ -16,12 +17,24 @@ from .initialization import InitializedPopulation, hybrid_population, random_pop
 from .decoder import ScheduleResult, decode_static, validate_schedule
 from .dynamic import (
     DynamicEvent,
+    DynamicOptimizationResult,
     DynamicState,
     ReschedulingPlan,
     analyze_event,
     build_rescheduling_plan,
     execute_is,
+    execute_rescheduling,
     validate_dynamic_schedule,
+)
+from .metrics import (
+    coverage,
+    dynamic_rsi_components,
+    hypervolume_2d,
+    igd,
+    normalize_groups,
+    reference_front,
+    rsi,
+    spacing,
 )
 
 __all__ = [
@@ -33,6 +46,7 @@ __all__ = [
     "ResourceParameters",
     "load_brandimarte",
     "load_experiment_input",
+    "load_dynamic_experiment_input",
     "load_resource_parameters",
     "Chromosome",
     "ChromosomeError",
@@ -43,10 +57,20 @@ __all__ = [
     "decode_static",
     "validate_schedule",
     "DynamicEvent",
+    "DynamicOptimizationResult",
     "DynamicState",
     "ReschedulingPlan",
     "analyze_event",
     "build_rescheduling_plan",
     "execute_is",
+    "execute_rescheduling",
     "validate_dynamic_schedule",
+    "coverage",
+    "dynamic_rsi_components",
+    "hypervolume_2d",
+    "igd",
+    "normalize_groups",
+    "reference_front",
+    "rsi",
+    "spacing",
 ]
