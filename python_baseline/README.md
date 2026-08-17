@@ -1,15 +1,18 @@
 # Python baseline
 
-This directory will contain the faithful Python reproduction.
+这里保存忠实的 Python 复现。当前已完成第4步统一数据层。
 
-Planned responsibilities:
+读取一个完整实验输入：
 
-- shared instance data model, chromosome representation, decoder, objectives,
-  and metrics;
-- separate QNSGA-II, NSGA-II, MOEA/D, and MOPSO optimizer entry points;
-- explicit paper-defined ablation configurations;
-- separate order-cancellation, machine-failure, and AGV-failure rescheduling;
-- IS, RS, and CS strategy implementations.
+```powershell
+python -m python_baseline.dfjspt python_baseline/data/brandimarte/Mk05.fjs python_baseline/data/resources/static_algorithm_comparison.json
+```
 
-No implementation belongs here until its MATLAB source path and validation
-method have been recorded under `reproduction/`.
+重新执行 Gate 1：
+
+```powershell
+python scripts/check_gate1.py
+python -m unittest discover -s tests -v
+```
+
+只有重新转换原“机器数据.xlsx”时才需要 `requirements-convert.txt` 中的 `openpyxl`；正常读取已转换数据不依赖第三方包。
