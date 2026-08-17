@@ -1,0 +1,15 @@
+{
+  "gate": 6,
+  "status": "passed",
+  "matlab_reference": "python_baseline/data/matlab_reference/dynamic_step11.json",
+  "fixed_instance": "Mk05",
+  "fixed_event_time": 100.0,
+  "tests": 5,
+  "assertions": [
+    "已完成工序保持固定",
+    "故障资源在维修区间不启动新任务",
+    "订单撤销删除目标订单",
+    "AGV位置、电量和可用时刻正确继承",
+    "IS、RS、CS具有不同的约束边界"
+  ]
+}

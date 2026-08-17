@@ -1,0 +1,34 @@
+step: 11
+scope: 动态事件状态继承与三类重调度策略边界
+matlab_call_paths:
+  order_cancellation:
+    main: 订单撤销-动态算法对比/dif_main.m
+    RS: OD_INSGA-II/OD_INSGA_II.m
+    CS: CRS_OD_INSGA-II/OD_INSGA_II.m
+    IS: initial_OD_INSGA-II/OD_INSGA_II.m
+  machine_failure:
+    main: 第2篇代码-动态算法对比/dif_main.m
+    RS: MF_INSGA-II/MF_INSGA_II.m
+    CS: CRS_MF_INSGA-II/MF_INSGA_II.m
+    IS: initial_MF_INSGA-II/MF_INSGA_II.m
+  agv_failure:
+    main: AGV故障-动态算法对比/第2篇代码-动态算法对比/dif_main.m
+    RS: AF_INSGA-II/AF_INSGA_II.m
+    CS: CRS_AF_INSGA-II/AF_INSGA_II.m
+    IS: initial_AF_INSGA-II/AF_INSGA_II.m
+fixed_reference:
+  instance: Mk05
+  event_time: 100
+  completed_operations: 5
+  in_process_operations: 0
+  remaining_operations: 101
+rules:
+  completed_operations: 事件时刻前完成的工序固定
+  machine_failure: 故障资源在维修区间不能启动新任务
+  agv_failure: 继承AGV位置、电量与可用时刻
+  order_cancellation: 删除被撤销订单全部工序
+  IS: 不改变剩余染色体，故障后右移继续
+  RS_order: OS、AS、VS可重调，继承机器选择
+  RS_machine: 仅故障机受影响工序可改变MS，OS、AS、VS可重调
+  RS_agv: 固定MS，OS、AS、VS可重调
+  CS: OS、MS、AS、VS完全重调

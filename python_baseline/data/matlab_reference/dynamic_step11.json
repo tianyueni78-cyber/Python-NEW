@@ -1,0 +1,1 @@
+{"instance":"Mk05","event_time":100,"completed_operations":5,"in_process_operations":0,"remaining_operations":101,"machine_failure":{"target":3,"duration":20},"agv_failure":{"target":1,"duration":15},"order_cancellation":{"target":4},"strategy_semantics":{"IS":"initial_*: no variation","RS":"event-constrained rescheduling","CS":"CRS_*: complete rescheduling"}}
