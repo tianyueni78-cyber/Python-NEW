@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Original source is local/read-only unless redistribution is approved
+original_matlab/source/
+
+# Generated experiment artifacts
+results/raw/
+results/runs/
+results/checkpoints/
+results/**/*.mat
+results/**/*.npy
+results/**/*.npz
+results/**/*.pkl
+
+# Temporary files
+*.tmp
+*.log
+~$*
