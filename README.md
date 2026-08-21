@@ -1,4 +1,4 @@
-# Python-NEW
+# Python-NEW基于论文与现有发布代码重建的 baseline
 
 Python reproduction of the MATLAB implementation accompanying the paper
 *A Q-Learning based NSGA-II for dynamic flexible job shop scheduling with limited transportation resources*.
