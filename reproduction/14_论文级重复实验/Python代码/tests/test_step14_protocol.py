@@ -9,12 +9,54 @@ from python_baseline.dfjspt.experiments import (
 )
 from python_baseline.dfjspt.dynamic_experiments import formal_dynamic_scenarios
 from scripts.run_step14_static import select_specs
+from scripts.check_gate7 import collect_static_evidence
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class Step14ProtocolTests(unittest.TestCase):
+    def test_gate7_combines_only_reusable_original_and_changed_reruns(self):
+        original = ROOT / "results" / "runs" / f"test_gate7_original_{uuid.uuid4().hex}"
+        rerun = ROOT / "results" / "runs" / f"test_gate7_rerun_{uuid.uuid4().hex}"
+        original.mkdir()
+        rerun.mkdir()
+        try:
+            original_runs = []
+            rerun_runs = []
+            for algorithm in (
+                "qnsga2", "nsga2", "moead", "mopso", "ablation_A",
+                "ablation_B", "ablation_C", "ablation_full",
+            ):
+                run_id = f"Mk01_{algorithm}_r01"
+                folder = original / run_id
+                folder.mkdir()
+                (folder / "config.json").write_text(
+                    json.dumps({"algorithm": algorithm}), "utf-8"
+                )
+                original_runs.append({"run_id": run_id, "status": "success"})
+                if algorithm in {"nsga2", "moead", "mopso", "ablation_A"}:
+                    rerun_folder = rerun / run_id
+                    rerun_folder.mkdir()
+                    (rerun_folder / "config.json").write_text(
+                        json.dumps({"algorithm": algorithm}), "utf-8"
+                    )
+                    rerun_runs.append({"run_id": run_id, "status": "success"})
+            (original / "manifest.json").write_text(
+                json.dumps({"runs": original_runs}), "utf-8"
+            )
+            (rerun / "manifest.json").write_text(
+                json.dumps({"runs": rerun_runs}), "utf-8"
+            )
+
+            selected = collect_static_evidence(original, rerun)
+
+            self.assertEqual(len(selected), 8)
+            self.assertEqual(len({row["algorithm"] for row in selected}), 8)
+        finally:
+            shutil.rmtree(original, ignore_errors=True)
+            shutil.rmtree(rerun, ignore_errors=True)
+
     def test_formal_dynamic_grid_has_20_scenarios_and_1200_strategy_runs(self):
         scenarios = formal_dynamic_scenarios()
         self.assertEqual(len(scenarios), 20)
