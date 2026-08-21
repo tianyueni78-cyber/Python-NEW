@@ -158,6 +158,36 @@ class Step14ProtocolTests(unittest.TestCase):
             shutil.rmtree(source, ignore_errors=True)
             shutil.rmtree(target, ignore_errors=True)
 
+    def test_calibration_budget_overrides_only_matching_old_budget(self):
+        spec = ExperimentSpec(
+            "nsga2", "Mk01", 1, 10, 0, scenario="budget_override",
+            budget_source_algorithm="qnsga2",
+        )
+        old_source = ROOT / "results" / "runs" / f"test_old_{uuid.uuid4().hex}"
+        calibration = ROOT / "results" / "runs" / f"test_cal_{uuid.uuid4().hex}"
+        target = ROOT / "results" / "runs" / f"test_target_{uuid.uuid4().hex}"
+        for path in (old_source, calibration, target):
+            path.mkdir()
+        try:
+            qspec = [ExperimentSpec("qnsga2", "Mk01", 1, 10, 1, scenario="budget_override")]
+            run_batch(qspec, old_source, ROOT / "python_baseline" / "data", resume=True)
+            run_batch(qspec, calibration, ROOT / "python_baseline" / "data", resume=True)
+            calibration_result = json.loads(
+                next(calibration.glob("*/result.json")).read_text("utf-8")
+            )
+            run_batch(
+                [spec], target, ROOT / "python_baseline" / "data", resume=True,
+                budget_source_output=old_source,
+                budget_override_output=calibration,
+            )
+            config = json.loads(next(target.glob("*/config.json")).read_text("utf-8"))
+            self.assertEqual(
+                config["time_limit_seconds"], calibration_result["elapsed_seconds"]
+            )
+        finally:
+            for path in (old_source, calibration, target):
+                shutil.rmtree(path, ignore_errors=True)
+
 
 if __name__ == "__main__":
     unittest.main()

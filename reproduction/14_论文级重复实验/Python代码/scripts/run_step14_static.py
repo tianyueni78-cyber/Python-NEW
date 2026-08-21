@@ -35,6 +35,7 @@ def main() -> int:
         ],
     )
     parser.add_argument("--budget-source", type=Path)
+    parser.add_argument("--budget-override", type=Path)
     args = parser.parse_args()
     specs = select_specs(
         formal_static_specs(), instance=args.instance, repeat=args.repeat,
@@ -44,6 +45,7 @@ def main() -> int:
     results = run_batch(
         specs, args.output, ROOT / "python_baseline" / "data", resume=True,
         budget_source_output=args.budget_source,
+        budget_override_output=args.budget_override,
     )
     print(f"当前目录累计成功 {len(results)} 个实验：{args.output}", flush=True)
     return 0

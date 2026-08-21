@@ -122,6 +122,7 @@ def _write_csv(path: Path, header: list[str], rows, *, replace_existing: bool = 
 def run_batch(
     specs: list[ExperimentSpec], output: Path, data_root: Path, *, resume: bool = False,
     budget_source_output: Path | None = None,
+    budget_override_output: Path | None = None,
 ) -> tuple[TrackedRun, ...]:
     if not specs:
         raise ValueError("批量实验不能为空")
@@ -134,14 +135,16 @@ def run_batch(
     resource_path = data_root / "resources" / "static_algorithm_comparison.json"
     tracked: list[TrackedRun] = []
     elapsed_by_key: dict[tuple[str, int, str, str], float] = {}
-    if budget_source_output is not None:
+    for budget_root in (budget_source_output, budget_override_output):
+        if budget_root is None:
+            continue
         source_manifest = json.loads(
-            (budget_source_output / "manifest.json").read_text("utf-8")
+            (budget_root / "manifest.json").read_text("utf-8")
         )
         for item in source_manifest["runs"]:
             if item["status"] != "success":
                 continue
-            folder = budget_source_output / item["run_id"]
+            folder = budget_root / item["run_id"]
             config = json.loads((folder / "config.json").read_text("utf-8"))
             result = json.loads((folder / "result.json").read_text("utf-8"))
             elapsed_by_key[(
@@ -190,6 +193,16 @@ def run_batch(
                 raise ValueError(f"公平时间预算来源尚未完成：{key}")
             spec = replace(spec, time_limit_seconds=elapsed_by_key[key])
         folder = output / run_id
+        if folder.exists():
+            index = 1
+            while True:
+                interrupted = folder.with_name(
+                    f"{folder.name}_interrupted_{index:02d}"
+                )
+                if not interrupted.exists():
+                    folder.rename(interrupted)
+                    break
+                index += 1
         folder.mkdir()
         instance_path = data_root / "brandimarte" / f"{spec.instance}.fjs"
         config = asdict(spec) | {

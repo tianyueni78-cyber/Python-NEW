@@ -167,6 +167,10 @@ class ExperimentTrackingTests(unittest.TestCase):
         self.assertEqual(len(manifest["runs"]), 1)
         self.assertEqual(manifest["runs"][0]["status"], "success")
 
+        resumed = run_batch(specs, temp, DATA, resume=True)
+        self.assertEqual(len(resumed), 2)
+        self.assertEqual(len(list(temp.glob("*_interrupted_01"))), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
