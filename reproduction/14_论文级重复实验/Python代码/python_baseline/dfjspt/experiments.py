@@ -232,6 +232,7 @@ def run_batch(
                 spec.instance, spec.repeat, spec.scenario, spec.algorithm,
             )] = elapsed
             manifest["runs"].append({"run_id": run_id, "status": "success", "seed": seed})
+            manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), "utf-8")
         except Exception as error:
             elapsed = time.perf_counter() - started
             (folder / "result.json").write_text(json.dumps({"status": "failed", "elapsed_seconds": elapsed, "error": repr(error)}, ensure_ascii=False, indent=2), "utf-8")
