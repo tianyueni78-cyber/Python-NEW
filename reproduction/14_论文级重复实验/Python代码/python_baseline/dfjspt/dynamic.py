@@ -451,10 +451,13 @@ def execute_rescheduling(
     population_size: int = 100, generations: int = 200, seed: int,
     alpha: float = 0.1, gamma: float = 0.9,
     time_limit_seconds: float | None = None,
+    search_mode: str = "matlab_observed",
 ) -> DynamicOptimizationResult:
     """运行活动 MATLAB RS/CS 共同采用的动态 NSGA-II 主循环。"""
     if strategy not in {"RS", "CS"}:
         raise ValueError("动态优化策略必须是RS或CS")
+    if search_mode not in {"matlab_observed", "full_qlearning"}:
+        raise ValueError("动态搜索模式必须是matlab_observed或full_qlearning")
     if generations <= 0 or population_size <= 0 or population_size % 10:
         raise ValueError("代数必须为正，种群规模必须是10的正整数倍")
     rng = random.Random(seed)
@@ -465,7 +468,12 @@ def execute_rescheduling(
     schedules = [_decode_dynamic(data, chromosome, original_schedule, event) for chromosome in population]
     objectives = [(schedule.makespan, schedule.machine_energy) for schedule in schedules]
     evaluations = len(population)
-    qtable = [[0.0] * 6 for _ in range(4)]
+    if search_mode == "full_qlearning":
+        qtable = [[0.0] * 6 for _ in range(4)]
+    elif event.kind == "order_cancellation":
+        qtable = [[0.0] for _ in range(4)]
+    else:
+        qtable = [[1.0] * 2 for _ in range(4)]
     current_state = 3
     started = time.perf_counter()
     iteration_limit = generations if time_limit_seconds is None else 2_147_483_647
@@ -499,6 +507,9 @@ def execute_rescheduling(
         schedules = [candidate_schedules[index] for index in selected]
         objectives = [candidate_objectives[index] for index in selected]
 
+        if search_mode == "matlab_observed" and event.kind != "order_cancellation":
+            continue
+
         middle = population_size // 2
         time_values = sorted(value[0] for value in objectives)
         energy_values = sorted(value[1] for value in objectives)
@@ -513,7 +524,7 @@ def execute_rescheduling(
         accepted_schedules: list[ScheduleResult] = []
         for state, group in enumerate(groups):
             for index in group:
-                action = select_action(
+                action = 0 if search_mode == "matlab_observed" else select_action(
                     qtable, current_state,
                     epsilon(min(generation, generations - 1), generations), rng,
                 )

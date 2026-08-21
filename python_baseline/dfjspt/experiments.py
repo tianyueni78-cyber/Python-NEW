@@ -50,6 +50,15 @@ def paired_seed(instance: str, repeat: int, base_seed: int = 20260817) -> int:
     return int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
 
 
+def matlab_objective_profile(algorithm: str) -> dict[str, object]:
+    comparator = algorithm in {"nsga2", "moead", "mopso", "ablation_A"}
+    return {
+        "f1": "makespan_after_unload" if comparator else "last_processing_completion",
+        "f2": "machine_energy_plus_agv_energy" if comparator else "machine_energy",
+        "finished_jobs_return_to_unload": comparator,
+    }
+
+
 def formal_static_specs() -> list[ExperimentSpec]:
     """生成论文静态算法对比与消融的1600个正式运行。"""
     specs: list[ExperimentSpec] = []
@@ -112,6 +121,7 @@ def _write_csv(path: Path, header: list[str], rows, *, replace_existing: bool = 
 
 def run_batch(
     specs: list[ExperimentSpec], output: Path, data_root: Path, *, resume: bool = False,
+    budget_source_output: Path | None = None,
 ) -> tuple[TrackedRun, ...]:
     if not specs:
         raise ValueError("批量实验不能为空")
@@ -124,6 +134,20 @@ def run_batch(
     resource_path = data_root / "resources" / "static_algorithm_comparison.json"
     tracked: list[TrackedRun] = []
     elapsed_by_key: dict[tuple[str, int, str, str], float] = {}
+    if budget_source_output is not None:
+        source_manifest = json.loads(
+            (budget_source_output / "manifest.json").read_text("utf-8")
+        )
+        for item in source_manifest["runs"]:
+            if item["status"] != "success":
+                continue
+            folder = budget_source_output / item["run_id"]
+            config = json.loads((folder / "config.json").read_text("utf-8"))
+            result = json.loads((folder / "result.json").read_text("utf-8"))
+            elapsed_by_key[(
+                config["instance"], config["repeat"], config["scenario"],
+                config["algorithm"],
+            )] = result["elapsed_seconds"]
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text("utf-8"))
         for item in manifest["runs"]:
@@ -173,6 +197,7 @@ def run_batch(
             "protocol_version": "1.0",
             "input_sha256": _sha256(instance_path),
             "resource_sha256": _sha256(resource_path),
+            "objective_profile": matlab_objective_profile(spec.algorithm),
         }
         (folder / "config.json").write_text(json.dumps(config, ensure_ascii=False, indent=2), "utf-8")
         started = time.perf_counter()
@@ -194,7 +219,7 @@ def run_batch(
             (folder / "result.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), "utf-8")
             _write_csv(
                 folder / "pareto.csv",
-                ["makespan", "machine_energy", "chromosome_matlab_1_based_json"],
+                ["makespan", "energy_objective", "chromosome_matlab_1_based_json"],
                 ((objective[0], objective[1], json.dumps(chromosome.to_matlab_row())) for objective, chromosome in zip(objectives, result.pareto_chromosomes)),
             )
             _write_csv(
@@ -251,12 +276,12 @@ def summarize_batch(output: Path, runs: list[TrackedRun]) -> dict[str, Any]:
         replace_existing=True,
     )
     _write_csv(
-        output / "pareto_plot_data.csv", ["algorithm", "makespan", "machine_energy"],
+        output / "pareto_plot_data.csv", ["algorithm", "makespan", "energy_objective"],
         ((run_config[run.run_id]["algorithm"], *point) for run in runs for point in run.pareto_objectives),
         replace_existing=True,
     )
     _write_csv(
-        output / "boxplot_data.csv", ["run_id", "algorithm", "makespan", "machine_energy"],
+        output / "boxplot_data.csv", ["run_id", "algorithm", "makespan", "energy_objective"],
         ((run.run_id, run_config[run.run_id]["algorithm"], *point) for run in runs for point in run.pareto_objectives),
         replace_existing=True,
     )

@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "step13": "pass",
+  "gate1_to_gate6": "pass",
+  "metrics": "pass",
+  "full_tests": 95,
+  "matlab_objective_profiles": {
+    "machine_only": ["qnsga2", "ablation_B", "ablation_C", "ablation_full"],
+    "machine_plus_agv_and_return_unload": ["nsga2", "moead", "mopso", "ablation_A"]
+  },
+  "dynamic_modes": {
+    "baseline": "matlab_observed",
+    "preserved_extension": "full_qlearning"
+  },
+  "preserved_static_runs": 1600,
+  "reusable_static_runs": 800,
+  "static_runs_to_rerun": 800,
+  "gate7": "pending_long_runs"
+}

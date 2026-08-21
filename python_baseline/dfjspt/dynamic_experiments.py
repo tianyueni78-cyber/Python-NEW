@@ -72,6 +72,7 @@ def _git_commit(root: Path) -> str:
 def run_dynamic_batch(
     scenarios: list[DynamicScenario], repeats: list[int], output: Path,
     data_root: Path, *, population_size: int = 100, generations: int = 200,
+    search_mode: str = "matlab_observed",
 ) -> int:
     """逐场景保存初始解和IS/RS/CS原始结果；已有成功目录直接跳过。"""
     output.mkdir(parents=True, exist_ok=True)
@@ -96,6 +97,7 @@ def run_dynamic_batch(
             config = {
                 **asdict(scenario), "repeat": repeat, "seed": seed,
                 "population_size": population_size, "generations": generations,
+                "search_mode": search_mode,
                 "git_commit": commit, "python": platform.python_version(),
                 "created_at_utc": datetime.now(timezone.utc).isoformat(),
             }
@@ -139,6 +141,7 @@ def run_dynamic_batch(
                         data, chromosome, original, event, strategy,
                         population_size=population_size, generations=generations,
                         seed=seed, time_limit_seconds=budget,
+                        search_mode=search_mode,
                     )
                     rows = []
                     for objective, schedule, candidate in zip(

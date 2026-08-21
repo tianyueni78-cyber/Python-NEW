@@ -8,6 +8,7 @@ from python_baseline.dfjspt.experiments import (
     ExperimentSpec, formal_static_specs, run_batch,
 )
 from python_baseline.dfjspt.dynamic_experiments import formal_dynamic_scenarios
+from scripts.run_step14_static import select_specs
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +43,17 @@ class Step14ProtocolTests(unittest.TestCase):
         ablations = [spec for spec in group if spec.scenario == "ablation"]
         self.assertTrue(all(spec.generations == 200 for spec in ablations))
 
+    def test_static_runner_can_select_only_changed_matlab_objective_algorithms(self):
+        selected = select_specs(
+            formal_static_specs(),
+            algorithms={"nsga2", "moead", "mopso", "ablation_A"},
+        )
+        self.assertEqual(len(selected), 800)
+        self.assertEqual(
+            {spec.algorithm for spec in selected},
+            {"nsga2", "moead", "mopso", "ablation_A"},
+        )
+
     def test_time_budget_is_inherited_and_successful_runs_resume(self):
         specs = [
             ExperimentSpec("qnsga2", "Mk01", 1, 10, 1, scenario="budget_test"),
@@ -73,6 +85,36 @@ class Step14ProtocolTests(unittest.TestCase):
             self.assertEqual(first, second)
         finally:
             shutil.rmtree(output, ignore_errors=True)
+
+    def test_time_budget_can_be_reused_from_preserved_result_directory(self):
+        source_specs = [
+            ExperimentSpec("qnsga2", "Mk01", 1, 10, 1, scenario="budget_reuse")
+        ]
+        target_specs = [
+            ExperimentSpec(
+                "nsga2", "Mk01", 1, 10, 0, scenario="budget_reuse",
+                budget_source_algorithm="qnsga2",
+            )
+        ]
+        source = ROOT / "results" / "runs" / f"test_step14_source_{uuid.uuid4().hex}"
+        target = ROOT / "results" / "runs" / f"test_step14_target_{uuid.uuid4().hex}"
+        source.mkdir()
+        target.mkdir()
+        try:
+            run_batch(source_specs, source, ROOT / "python_baseline" / "data", resume=True)
+            runs = run_batch(
+                target_specs,
+                target,
+                ROOT / "python_baseline" / "data",
+                resume=True,
+                budget_source_output=source,
+            )
+            self.assertEqual(len(runs), 1)
+            config = json.loads(next(target.glob("*/config.json")).read_text("utf-8"))
+            self.assertGreater(config["time_limit_seconds"], 0)
+        finally:
+            shutil.rmtree(source, ignore_errors=True)
+            shutil.rmtree(target, ignore_errors=True)
 
 
 if __name__ == "__main__":
