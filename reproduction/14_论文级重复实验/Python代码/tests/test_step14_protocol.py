@@ -1,6 +1,10 @@
 import unittest
+import csv
 import json
+import os
 import shutil
+import subprocess
+import sys
 import uuid
 from pathlib import Path
 
@@ -10,12 +14,80 @@ from python_baseline.dfjspt.experiments import (
 from python_baseline.dfjspt.dynamic_experiments import formal_dynamic_scenarios
 from scripts.run_step14_static import select_specs
 from scripts.check_gate7 import collect_static_evidence
+from scripts.audit_step14_static import build_static_audit
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class Step14ProtocolTests(unittest.TestCase):
+    def test_static_audit_script_runs_directly(self):
+        completed = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "audit_step14_static.py"), "--help"],
+            cwd=ROOT, text=True, capture_output=True,
+            env={**os.environ, "PYTHONUTF8": "1"},
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+
+    def test_static_audit_selects_observed_runs_and_only_ranks_comparable_groups(self):
+        original = ROOT / "results" / "runs" / f"test_audit_original_{uuid.uuid4().hex}"
+        rerun = ROOT / "results" / "runs" / f"test_audit_rerun_{uuid.uuid4().hex}"
+        output = ROOT / "results" / "runs" / f"test_audit_output_{uuid.uuid4().hex}"
+        algorithms = (
+            "qnsga2", "nsga2", "moead", "mopso", "ablation_A",
+            "ablation_B", "ablation_C", "ablation_full",
+        )
+        try:
+            for root in (original, rerun):
+                root.mkdir()
+            manifests = {original: [], rerun: []}
+            for index, algorithm in enumerate(algorithms):
+                root = original if algorithm in {
+                    "qnsga2", "ablation_B", "ablation_C", "ablation_full",
+                } else rerun
+                run_id = f"Mk01_{algorithm}_r01"
+                folder = root / run_id
+                folder.mkdir()
+                config = {
+                    "algorithm": algorithm, "instance": "Mk01", "repeat": 1,
+                    "scenario": "ablation" if algorithm.startswith("ablation_") else "static_comparison",
+                    "objective_profile": {"f2": "machine_energy_plus_agv_energy" if algorithm in {
+                        "nsga2", "moead", "mopso", "ablation_A",
+                    } else "machine_energy"},
+                }
+                result = {
+                    "status": "success", "elapsed_seconds": index + 1,
+                    "evaluations": 100, "seed": 7,
+                    "pareto_objectives": [[10 + index, 20 + index], [11 + index, 19 + index]],
+                }
+                (folder / "config.json").write_text(json.dumps(config), "utf-8")
+                (folder / "result.json").write_text(json.dumps(result), "utf-8")
+                manifests[root].append({"run_id": run_id, "status": "success", "seed": 7})
+            for root, runs in manifests.items():
+                (root / "manifest.json").write_text(json.dumps({"runs": runs}), "utf-8")
+
+            evidence = build_static_audit(original, rerun, output, expected_per_algorithm=1)
+
+            self.assertEqual(evidence["selected_runs"], 8)
+            self.assertEqual(evidence["runs_by_algorithm"], {algorithm: 1 for algorithm in sorted(algorithms)})
+            self.assertEqual(
+                set(evidence["ranked_groups"]),
+                {"comparator_same_objectives", "ablation_machine_energy"},
+            )
+            self.assertTrue((output / "static_run_index.csv").is_file())
+            self.assertTrue((output / "comparable_rankings.csv").is_file())
+            with (output / "comparable_rankings.csv").open(encoding="utf-8-sig") as handle:
+                ranking = next(csv.DictReader(handle))
+            self.assertIn("mean_hv", ranking)
+            self.assertIn("mean_igd", ranking)
+            with (output / "algorithm_descriptive_summary.csv").open(encoding="utf-8-sig") as handle:
+                summaries = {row["algorithm"]: row for row in csv.DictReader(handle)}
+            self.assertEqual(summaries["qnsga2"]["objective_f1"], "last_processing_completion")
+            self.assertEqual(summaries["qnsga2"]["objective_f2"], "machine_energy")
+        finally:
+            for path in (original, rerun, output):
+                shutil.rmtree(path, ignore_errors=True)
+
     def test_gate7_combines_only_reusable_original_and_changed_reruns(self):
         original = ROOT / "results" / "runs" / f"test_gate7_original_{uuid.uuid4().hex}"
         rerun = ROOT / "results" / "runs" / f"test_gate7_rerun_{uuid.uuid4().hex}"

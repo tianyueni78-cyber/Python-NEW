@@ -1,0 +1,34 @@
+{
+  "结论": "静态最终合并审计通过",
+  "完整baseline状态": "未冻结",
+  "最终目录": "D:\\CODEX\\Python-NEW-step14-results\\static_matlab_observed_final_v3",
+  "成功运行": 1600,
+  "失败运行": 0,
+  "每算法运行": 200,
+  "配对实例重复组": 200,
+  "唯一运行键": 1600,
+  "唯一结果SHA256": 1600,
+  "允许排名的同目标子组": {
+    "对比算法": ["nsga2", "moead", "mopso"],
+    "机器能耗消融": ["ablation_B", "ablation_C", "ablation_full"]
+  },
+  "对比算法HV与IGD总排名": ["moead", "nsga2", "mopso"],
+  "同目标消融HV与IGD总排名": ["ablation_C", "ablation_full", "ablation_B"],
+  "论文结论审计": {
+    "主算法优于三个对比算法": "目标口径不同，当前结果不能公平验证",
+    "full优于随机邻域C": "未复现；C在HV、IGD及双向C上总体优于full",
+    "消融A比较": "目标口径不同，不作公平消融归因"
+  },
+  "源清单SHA256": {
+    "旧目录": "c4acd41b5f76ca9bd0da8b2f5582c2bbe241cdbb18ca99febd60758e158ba91d",
+    "新目录": "ddefe90c61a96d78b4a4dc004e51410ab598c0b09cf200a7af3b0e4aaf48a5d5"
+  },
+  "最终文件SHA256": {
+    "static_run_index.csv": "79c445a371fe5819ebba173c39defe78f13aba5b9599d779453b2f07727e0fa5",
+    "algorithm_descriptive_summary.csv": "4712ebc8700f69d5e9fbb9cc923e7a7221e2af9b2b2cc35d730b5ac2f5ef46d0",
+    "comparable_metrics.csv": "b2432e56f7854811a68764b9d37809d0a9c28bbfba555037a20ecd244bcb7f7d",
+    "comparable_coverage.csv": "fd5ccead3fbe45c69afb7397681a8223886872e1450bb9edecebc9d938e80510",
+    "comparable_rankings.csv": "30f7ebffd89b7e4826f3490682c8c8d4af8c65cae683d766c7988a31c6604245",
+    "static_audit_evidence.json": "601cf815767abbadf9e3a63d2f229811e9200f9fde1e4990e584be4ec56d262f"
+  }
+}
