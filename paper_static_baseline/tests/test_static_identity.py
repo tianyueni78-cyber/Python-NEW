@@ -23,6 +23,23 @@ class StaticBaselineIdentityTests(unittest.TestCase):
         self.assertFalse((ROOT / "data" / "resources" / "dynamic_event_profiles.json").exists())
         self.assertEqual([], [path for path in ROOT.rglob("*") if "dynamic" in path.name.lower()])
 
+    def test_static_production_code_contains_no_dynamic_or_innovation_entry(self):
+        forbidden = (
+            "load_dynamic_experiment_input",
+            "dynamic_rsi_components",
+            "DynamicEvent",
+            "execute_rescheduling",
+            "top_k",
+            "joint_action",
+        )
+        violations = []
+        for path in (ROOT / "dfjspt").glob("*.py"):
+            text = path.read_text(encoding="utf-8")
+            for term in forbidden:
+                if term in text:
+                    violations.append(f"{path.name}:{term}")
+        self.assertEqual([], violations)
+
     def test_static_package_imports_without_dynamic_exports(self):
         from paper_static_baseline import dfjspt
 

@@ -1,4 +1,4 @@
-"""论文主链使用的HV、IGD、Spacing、C指标和动态RSI。"""
+"""静态实验使用的HV、IGD、Spacing、C指标。"""
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ import statistics
 from collections.abc import Sequence
 
 from .multiobjective import dominates, pareto_indices
-from .decoder import ScheduleResult
 
 
 Point = tuple[float, ...]
@@ -96,34 +95,3 @@ def rsi(components: Sequence[float], weights: Sequence[float] = (0.3333, 0.3333,
         raise ValueError("RSI必须包含三个分指标和三个权重")
     return sum(float(value) * float(weight) for value, weight in zip(components, weights))
 
-
-def dynamic_rsi_components(
-    original: ScheduleResult,
-    rescheduled: ScheduleResult,
-    remaining_operation_count: int,
-    preserve_matlab_apsd_bug: bool = True,
-) -> tuple[float, float, float]:
-    """复现动态fitness.m的MCR、Alpha和APSD，默认保留APSD下标笔误。"""
-    if remaining_operation_count <= 0:
-        raise ValueError("剩余工序数必须为正")
-    before = {
-        (block.job, block.opera): (machine, block.start)
-        for machine, table in enumerate(original.machine_tables, start=1)
-        for block in table if block.job
-    }
-    after = {
-        (block.job, block.opera): (machine, block.start)
-        for machine, table in enumerate(rescheduled.machine_tables, start=1)
-        for block in table if block.job
-    }
-    common = set(before) & set(after)
-    same_machine = sum(before[key][0] == after[key][0] for key in common)
-    mcr = (remaining_operation_count - same_machine) / remaining_operation_count
-    if preserve_matlab_apsd_bug:
-        last_key = next(reversed(after))
-        deviation = abs(before[last_key][1] - after[last_key][1]) if last_key in before else 0.0
-        apsd = len(after) * deviation / remaining_operation_count
-    else:
-        apsd = sum(abs(before[key][1] - after[key][1]) for key in common) / remaining_operation_count
-    alpha = rescheduled.agv_energy / remaining_operation_count
-    return mcr, alpha, apsd
