@@ -4,6 +4,9 @@ import sys
 import unittest
 import uuid
 from pathlib import Path
+from unittest.mock import patch
+
+from paper_static_baseline.scripts import run_a0
 
 
 REPO = Path(__file__).resolve().parents[2]
@@ -64,6 +67,20 @@ class A0RunnerTests(unittest.TestCase):
         left = json.loads((first / "manifest.json").read_text(encoding="utf-8"))
         right = json.loads((second / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(left, right)
+
+    def test_algorithm_failure_leaves_failed_manifest(self):
+        output = self.output_path("failed")
+        arguments = [
+            "run_a0.py", "--instance", "Mk01", "--population", "10",
+            "--generations", "1", "--seed", "1", "--output", str(output),
+        ]
+        with patch.object(sys, "argv", arguments), patch.object(
+            run_a0, "load_experiment_input", side_effect=RuntimeError("simulated failure")
+        ):
+            self.assertEqual(run_a0.main(), 1)
+        manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["status"], "failed")
+        self.assertEqual(manifest["error_type"], "RuntimeError")
 
 
 if __name__ == "__main__":

@@ -60,37 +60,54 @@ def main() -> int:
 
     args.output.mkdir(parents=True)
     instance_path = BASELINE / "data" / "brandimarte" / f"{args.instance}.fjs"
-    data = load_experiment_input(instance_path, RESOURCE)
-    result = run_qnsga2(
-        data,
-        population_size=args.population,
-        generations=args.generations,
-        seed=args.seed,
-    )
     manifest = {
         "algorithm": "A0-QNSGA-II",
-        "chromosomes_matlab_1_based": [row.to_matlab_row() for row in result.pareto_chromosomes],
         "config_sha256": sha256(CONFIG),
-        "full_decode_evaluations": result.evaluations,
         "generations": args.generations,
         "instance": args.instance,
         "instance_sha256": sha256(instance_path),
-        "pareto_objectives": result.pareto_objectives,
         "population": args.population,
         "python_version": sys.version.split()[0],
-        "qtable": result.qtable,
         "seed": args.seed,
         "source_commit": source_commit(),
-        "status": "completed",
-        "trajectory_average": result.curve_average,
-        "trajectory_minimum": result.curve_min,
     }
+    try:
+        data = load_experiment_input(instance_path, RESOURCE)
+        result = run_qnsga2(
+            data,
+            population_size=args.population,
+            generations=args.generations,
+            seed=args.seed,
+        )
+        manifest.update({
+            "chromosomes_matlab_1_based": [row.to_matlab_row() for row in result.pareto_chromosomes],
+            "full_decode_evaluations": result.evaluations,
+            "pareto_objectives": result.pareto_objectives,
+            "qtable": result.qtable,
+            "status": "completed",
+            "trajectory_average": result.curve_average,
+            "trajectory_minimum": result.curve_min,
+        })
+        return_code = 0
+    except KeyboardInterrupt:
+        manifest.update({"status": "interrupted", "error_type": "KeyboardInterrupt"})
+        return_code = 130
+    except Exception as error:
+        manifest.update({
+            "status": "failed",
+            "error_type": type(error).__name__,
+            "error_message": str(error),
+        })
+        return_code = 1
     (args.output / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(args.output / "manifest.json")
-    return 0
+    if return_code:
+        print(f"运行未完成，记录见：{args.output / 'manifest.json'}", file=sys.stderr)
+    else:
+        print(args.output / "manifest.json")
+    return return_code
 
 
 if __name__ == "__main__":
