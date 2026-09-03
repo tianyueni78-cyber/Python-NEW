@@ -6,8 +6,23 @@
     "makespan",
     "machine_energy"
   ],
+  "chromosome_blocks": [
+    "OS",
+    "MS",
+    "AS",
+    "empty_speed",
+    "loaded_speed"
+  ],
+  "chromosome_length_per_operation": 5,
+  "initialization_ratio": [
+    0.4,
+    0.3,
+    0.3
+  ],
+  "makespan_endpoint": "last-processing-completion",
+  "epsilon_policy": "active-matlab-formula-and-branch",
+  "qtable_lifecycle": "reset-per-independent-run",
   "agv_energy_role": "feasibility-and-diagnostics-only",
   "innovation_enabled": false,
   "dynamic_events_enabled": false
 }
-
