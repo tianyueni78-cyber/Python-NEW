@@ -21,6 +21,7 @@ class StaticBaselineIdentityTests(unittest.TestCase):
         self.assertFalse((ROOT / "dfjspt" / "dynamic.py").exists())
         self.assertFalse((ROOT / "dfjspt" / "dynamic_experiments.py").exists())
         self.assertFalse((ROOT / "data" / "resources" / "dynamic_event_profiles.json").exists())
+        self.assertEqual([], [path for path in ROOT.rglob("*") if "dynamic" in path.name.lower()])
 
     def test_static_package_imports_without_dynamic_exports(self):
         from paper_static_baseline import dfjspt
