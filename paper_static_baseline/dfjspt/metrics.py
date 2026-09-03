@@ -94,4 +94,3 @@ def rsi(components: Sequence[float], weights: Sequence[float] = (0.3333, 0.3333,
     if len(components) != 3 or len(weights) != 3:
         raise ValueError("RSI必须包含三个分指标和三个权重")
     return sum(float(value) * float(weight) for value, weight in zip(components, weights))
-
