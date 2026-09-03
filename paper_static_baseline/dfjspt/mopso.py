@@ -12,6 +12,7 @@ from .chromosome import Chromosome
 from .data import ExperimentInput
 from .decoder import decode_static
 from .multiobjective import dominates, rank_and_crowding
+from .objectives import evaluate_objectives
 
 
 Objective = tuple[float, float]
@@ -111,11 +112,8 @@ def _evaluate(data: ExperimentInput, position: Sequence[float]) -> tuple[Objecti
         data.agv.count,
         len(data.agv.speeds),
     )
-    decoded = decode_static(data, chromosome, return_finished_jobs=True)
-    return (
-        decoded.makespan,
-        decoded.machine_energy + decoded.agv_energy,
-    ), chromosome
+    decoded = decode_static(data, chromosome)
+    return evaluate_objectives(decoded), chromosome
 
 
 def _grid_indices(objectives: Sequence[Objective], grid_count: int) -> tuple[int, ...]:

@@ -12,6 +12,7 @@ from .decoder import decode_static
 from .genetic import variation
 from .initialization import random_population
 from .multiobjective import environmental_select, rank_and_crowding, tournament_selection
+from .objectives import evaluate_objectives
 
 
 Objective = tuple[float, float]
@@ -29,8 +30,8 @@ class NSGA2Result:
 
 
 def _evaluate(data: ExperimentInput, chromosome: Chromosome) -> Objective:
-    result = decode_static(data, chromosome, return_finished_jobs=True)
-    return result.makespan, result.machine_energy + result.agv_energy
+    result = decode_static(data, chromosome)
+    return evaluate_objectives(result)
 
 
 def _continue(generation: int, generations: int | None, started: float, seconds: float | None) -> bool:
@@ -49,7 +50,7 @@ def run_nsga2(
     crossover_probability: float = 0.8,
     mutation_probability: float = 0.1,
 ) -> NSGA2Result:
-    """按NSGA-II/NSGA2.m运行，第二目标包含机器与AGV能耗。"""
+    """按本文统一静态目标运行NSGA-II。"""
     if population_size < 2:
         raise ValueError("种群规模至少为2")
     if (generations is None or generations <= 0) and (

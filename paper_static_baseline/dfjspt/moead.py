@@ -14,6 +14,7 @@ from .decoder import decode_static
 from .genetic import matlab_crossover, matlab_mutation
 from .initialization import random_population
 from .multiobjective import rank_and_crowding
+from .objectives import evaluate_objectives
 
 
 Objective = tuple[float, float]
@@ -80,8 +81,8 @@ def replacement_mask(
 
 
 def _evaluate(data: ExperimentInput, chromosome: Chromosome) -> Objective:
-    result = decode_static(data, chromosome, return_finished_jobs=True)
-    return result.makespan, result.machine_energy + result.agv_energy
+    result = decode_static(data, chromosome)
+    return evaluate_objectives(result)
 
 
 def _variation_pair(

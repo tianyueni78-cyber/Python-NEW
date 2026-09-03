@@ -12,6 +12,7 @@ from .genetic import variation
 from .initialization import hybrid_population
 from .multiobjective import rank_and_crowding, tournament_selection
 from .neighborhoods import apply_neighborhood
+from .objectives import evaluate_objectives
 from .qlearning import epsilon, reward_value, select_action, state_of, update_q
 
 
@@ -31,7 +32,7 @@ class QNSGA2Result:
 
 def _evaluate(data: ExperimentInput, chromosome: Chromosome) -> Objective:
     result = decode_static(data, chromosome)
-    return result.makespan, result.machine_energy
+    return evaluate_objectives(result)
 
 
 def _qnsga_order(objectives: list[Objective]) -> tuple[list[int], list[int], list[float]]:
