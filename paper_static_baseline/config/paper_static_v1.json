@@ -1,0 +1,13 @@
+{
+  "identity": "paper-static-baseline-v1",
+  "algorithm": "A0-QNSGA-II",
+  "scope": "static-machine-agv",
+  "objectives": [
+    "makespan",
+    "machine_energy"
+  ],
+  "agv_energy_role": "feasibility-and-diagnostics-only",
+  "innovation_enabled": false,
+  "dynamic_events_enabled": false
+}
+
